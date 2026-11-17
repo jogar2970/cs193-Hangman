@@ -1,0 +1,10 @@
+java
+python
+programming
+developer
+computer
+algorithm
+keyboard
+software
+terminal
+repository
