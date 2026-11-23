@@ -8,7 +8,6 @@ import java.util.Scanner;
 
 public class Hangman {
     private static final String WORD_FILE = "words.txt";
-    private static final int MAX_MISTAKES = 6;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -20,11 +19,11 @@ public class Hangman {
         }
 
         boolean playAgain = true;
-        System.out.println("=== Welcome to Java Terminal Hangman! ===");
+        System.out.println("=== Welcome to Java Terminal Hangman (Difficulty Edition) ===");
 
         while (playAgain) {
-            playGame(scanner, wordList);
-            
+            playGameWithDifficulty(scanner, wordList);
+
             System.out.print("\nWould you like to play another round? (y/n): ");
             String choice = scanner.nextLine().trim().toLowerCase();
             playAgain = choice.startsWith("y");
@@ -50,10 +49,58 @@ public class Hangman {
         return words;
     }
 
-    private static void playGame(Scanner scanner, List<String> wordList) {
+    private static void playGameWithDifficulty(Scanner scanner, List<String> wordList) {
+        int maxMistakes = 6;
+        String difficultyName = "Medium";
+        List<String> filteredWords = new ArrayList<>();
+
+        while (true) {
+            System.out.println("\nSelect Difficulty:");
+            System.out.println("1. Easy (Up to 5 letters, 8 mistakes allowed)");
+            System.out.println("2. Medium (6-7 letters, 6 mistakes allowed)");
+            System.out.println("3. Hard (8+ letters, 4 mistakes allowed)");
+            System.out.print("Enter choice (1-3): ");
+
+            String choice = scanner.nextLine().trim();
+            if (choice.equals("1")) {
+                difficultyName = "Easy";
+                maxMistakes = 8;
+                for (String w : wordList) {
+                    if (w.length() <= 5) {
+                        filteredWords.add(w);
+                    }
+                }
+                break;
+            } else if (choice.equals("2")) {
+                difficultyName = "Medium";
+                maxMistakes = 6;
+                for (String w : wordList) {
+                    if (w.length() >= 6 && w.length() <= 7) {
+                        filteredWords.add(w);
+                    }
+                }
+                break;
+            } else if (choice.equals("3")) {
+                difficultyName = "Hard";
+                maxMistakes = 4;
+                for (String w : wordList) {
+                    if (w.length() >= 8) {
+                        filteredWords.add(w);
+                    }
+                }
+                break;
+            } else {
+                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+            }
+        }
+
+        if (filteredWords.isEmpty()) {
+            filteredWords = wordList;
+        }
+
         Random random = new Random();
-        String secretWord = wordList.get(random.nextInt(wordList.size()));
-        
+        String secretWord = filteredWords.get(random.nextInt(filteredWords.size()));
+
         char[] currentBoard = new char[secretWord.length()];
         for (int i = 0; i < currentBoard.length; i++) {
             currentBoard[i] = '_';
@@ -62,12 +109,14 @@ public class Hangman {
         List<Character> incorrectGuesses = new ArrayList<>();
         boolean hasWon = false;
 
-        while (incorrectGuesses.size() < MAX_MISTAKES && !hasWon) {
+        System.out.println("\n--- Starting " + difficultyName + " Round (Max Mistakes: " + maxMistakes + ") ---");
+
+        while (incorrectGuesses.size() < maxMistakes && !hasWon) {
             System.out.println("\n-----------------------------------");
             System.out.print("Word: ");
             printBoard(currentBoard);
-            System.out.println("Incorrect guesses (" + incorrectGuesses.size() + "/" + MAX_MISTAKES + "): " + incorrectGuesses);
-            
+            System.out.println("Incorrect guesses (" + incorrectGuesses.size() + "/" + maxMistakes + "): " + incorrectGuesses);
+
             System.out.print("Guess a letter: ");
             String input = scanner.nextLine().trim().toLowerCase();
 
@@ -119,7 +168,9 @@ public class Hangman {
 
     private static boolean containsChar(char[] array, char c) {
         for (char value : array) {
-            if (value == c) return true;
+            if (value == c) {
+                return true;
+            }
         }
         return false;
     }
